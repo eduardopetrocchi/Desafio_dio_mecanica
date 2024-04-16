@@ -1,43 +1,149 @@
-## Diagrama UML - Oficina mecânica
+# Banco de Dados - Mecânico
 
-**Descrição:**
+Este repositório contém o script de criação do banco de dados Mecânico e uma série de consultas SQL para extrair informações relevantes sobre mecânicos, ordens de serviço, clientes, veículos e serviços.
 
-Este diagrama UML detalhado representa o sistema de controle e gerenciamento de execução de ordens de serviço em uma oficina mecânica, fornecendo uma visão abrangente dos elementos e funcionalidades do sistema.
+## Tabelas
 
-**Conteúdo do Diagrama:**
+### Endereço
 
-* **Casos de uso:** Descrevem as principais interações dos usuários com o sistema.
-* **Atores:** Representam os diferentes tipos de usuários e sistemas externos que interagem com o sistema.
-* **Classes:** Definem os principais objetos e entidades do sistema, com seus atributos e métodos.
-* **Atributos:** Caracterizam cada classe e armazenam informações relevantes.
-* **Relacionamentos:** Ilustram as conexões e interações entre as classes.
-* **Cardinalidades:** Definem a quantidade de objetos que podem participar de cada relacionamento.
+A tabela Endereço armazena informações sobre os endereços dos clientes e mecânicos. As colunas são:
 
-**Objetivo:**
+- `idEndereco`: Chave primária autoincrementada
+- `Logradouro`: Nome da rua
+- `Bairro`: Nome do bairro
+- `Cidade_UF`: Nome da cidade e UF separados por um underscore
+- `CEP`: CEP do endereço
 
-O diagrama tem como objetivo principal:
+### Mecânico
 
-* **Documentar o sistema:** Fornecer uma descrição visual e textual completa do sistema para facilitar a compreensão, o desenvolvimento e a manutenção.
-* **Compreender o funcionamento:** Visualizar como os diferentes componentes do sistema se relacionam e interagem para fornecer as funcionalidades desejadas.
-* **Identificar problemas:** Analisar o diagrama para detectar possíveis falhas, ineficiências ou pontos de melhoria no sistema.
-* **Melhorar a comunicação:** Facilitar a comunicação entre os stakeholders do projeto, como gerentes, desenvolvedores, clientes e usuários, utilizando uma linguagem visual comum.
+A tabela Mecânico armazena informações sobre os mecânicos. As colunas são:
 
-**Ferramentas:**
+- `idMecanico`: Chave primária autoincrementada
+- `Nome`: Nome do mecânico
+- `Especialidade`: Especialidade do mecânico
+- `idEndereco`: Chave estrangeira que referencia a tabela Endereço
 
-O diagrama foi criado com a ferramenta **MySQL Workbench** para garantir a criação de diagramas profissionais e precisos.
+### Ordem de Serviço
 
-**Utilização do Diagrama:**
+A tabela Ordem de Serviço armazena informações sobre as ordens de serviço dos veículos. As colunas são:
 
-O diagrama pode ser utilizado como referência para:
+- `idOrdemServico`: Chave primária autoincrementada
+- `DataEmissao`: Data de emissão da ordem de serviço
+- `ValorTotal`: Valor total da ordem de serviço
+- `StatusServico`: Status da ordem de serviço
+- `DataConclusao`: Data de conclusão da ordem de serviço
+- `IdMecanico`: Chave estrangeira que referencia a tabela Mecânico
+- `idVeiculo`: Chave estrangeira que referencia a tabela Veículo
 
-* **Criar a documentação do sistema:** Gerar documentação completa e detalhada do sistema, incluindo manuais, guias de referência e descrições técnicas.
-* **Implementar o sistema:** Guiar o desenvolvimento do sistema, garantindo que a implementação esteja em conformidade com o modelo UML.
-* **Testar o sistema:** Auxiliar na criação de casos de teste que abrangem as diferentes funcionalidades do sistema.
-* **Manter o sistema:** Facilitar a compreensão do sistema para realizar modificações, correções de bugs e evoluções futuras.
+### Veículo
 
+A tabela Veículo armazena informações sobre os veículos dos clientes. As colunas são:
 
+- `idVeiculo`: Chave primária autoincrementada
+- `Placa`: Placa do veículo
+- `Modelo`: Modelo do veículo
+- `Ano`: Ano do veículo
+- `Quilometragem`: Quilometragem do veículo
+- `idOrdemServico`: Chave estrangeira que referencia a tabela Ordem de Serviço
 
+### Serviço
 
+A tabela Serviço armazena informações sobre os serviços oferecidos pelos mecânicos. As colunas são:
+
+- `idServico`: Chave primária autoincrementada
+- `Descricao`: Descrição do serviço
+- `Valor`: Valor do serviço
+
+### Peça
+
+A tabela Peça armazena informações sobre as peças utilizadas nos serviços. As colunas são:
+
+- `idPeca`: Chave primária autoincrementada
+- `Descricao`: Descrição da peça
+- `Quantidade`: Quantidade da peça
+- `Valor`: Valor da peça
+
+### Cliente
+
+A tabela Cliente armazena informações sobre os clientes. As colunas são:
+
+- `idCliente`: Chave primária autoincrementada
+- `Nome`: Nome do cliente
+- `CPF`: CPF do cliente
+- `Telefone`: Telefone do cliente
+- `idVeiculo`: Chave estrangeira que referencia a tabela Veículo
+- `idEndereco`: Chave estrangeira que referencia a tabela Endereço
+
+### Ordem Serviço Cliente
+
+A tabela Ordem Serviço Cliente armazena informações sobre os serviços realizados em cada ordem de serviço para cada cliente. As colunas são:
+
+- `ordemServicoCliente`: Chave primária autoincrementada
+- `idServico`: Chave estrangeira que referencia a tabela Serviço
+- `idCliente`: Chave estrangeira que referencia a tabela Cliente
+
+## Queries SQL
+
+Aqui estão algumas consultas SQL para extrair informações do banco de dados Mecânico:
+
+1. **Listar Nome e Especialidade dos Mecânicos:**
+   ```sql
+   SELECT Nome, Especialidade
+   FROM mecanico;
+   ```
+
+2. **Mecânico que Trabalhou em um Modelo Específico:**
+   ```sql
+   SELECT m.Nome, m.Especialidade
+   FROM mecanico m
+   INNER JOIN ordemServico os ON m.idMecanico = os.IdMecanico
+   INNER JOIN veiculo v ON os.idOrdemServico = v.idVeiculo
+   WHERE v.Modelo = 'Gol';
+   ```
+
+3. **Serviços Não Concluídos:**
+   ```sql
+   SELECT idOrdemServico, DataEmissao, ValorTotal, StatusServico
+   FROM ordemServico
+   WHERE StatusServico <> 'Concluído';
+   ```
+
+4. **Total de Despesas de Cada Cliente:**
+   ```sql
+   SELECT c.Nome, SUM(os.ValorTotal) AS TotalCost
+   FROM cliente c
+   INNER JOIN veiculo v ON c.idCliente = v.idVeiculo
+   INNER JOIN ordemServico os ON v.idOrdemServico = os.idOrdemServico
+   GROUP BY c.Nome;
+   ```
+
+5. **Total de Serviços Completos por Mecânico:**
+   ```sql
+   SELECT m.Nome, m.Especialidade, COUNT(*) AS CompletedOrders
+   FROM mecanico m
+   INNER JOIN ordemServico os ON m.idMecanico = os.IdMecanico
+   WHERE os.StatusServico = 'Concluído'
+   GROUP BY m.Nome, m.Especialidade
+   ORDER BY CompletedOrders DESC;
+   ```
+
+6. **Serviços Concluídos com Detalhes do Cliente:**
+   ```sql
+   SELECT ordemServico.*, cliente.Nome AS ClienteNome, endereco.Logradouro AS EnderecoLogradouro, endereco.Bairro AS EnderecoBairro, endereco.Cidade_UF AS EnderecoCidadeUF, endereco.CEP AS EnderecoCEP
+   FROM ordemServico
+   JOIN mecanico ON ordemServico.IdMecanico = mecanico.idMecanico
+   JOIN cliente ON ordemServico.idVeiculo = cliente.idVeiculo
+   JOIN endereco ON cliente.idEndereco = endereco.idEndereco
+   WHERE ordemServico.StatusServico = 'Concluído';
+   ```
+
+7. **Serviços em Andamento para um Cliente Específico:**
+   ```sql
+   SELECT c.Nome, c.idCliente, os.idOrdemServico, os.DataEmissao, os.ValorTotal, os.StatusServico
+   FROM ordemServico os
+   JOIN cliente c ON os.idVeiculo = c.idVeiculo
+   WHERE os.StatusServico <> 'Concluído' AND c.idCliente = 1;
+  
 ## Autores
 
 - [@eduardopetrocchi](https://www.github.com/eduardopetrocchi)
